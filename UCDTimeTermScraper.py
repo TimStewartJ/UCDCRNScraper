@@ -104,7 +104,7 @@ def read_data(x):
 
 #function to write all the data we got to a csv file
 def write_data():
-    with open(f"{term} Classes.csv", 'w', newline='') as out_file:
+    with open(f"{term}.csv", 'w', newline='') as out_file:
 
         #get the keys and declare the dict writer
         keys = table_data[0].keys()
