@@ -114,8 +114,7 @@ def write_data():
         writer.writeheader()
         writer.writerows(table_data)
 
-# max_index = len(subject_area.options) # gets length of the selector
-max_index = 3
+max_index = len(subject_area.options) # gets length of the selector
 delay = 7 # maximum time to wait to find elements on search (shouldn't take that longg anyway)
 x = 1 # should start at 1 since 0 is the default selection and won't give any data
 table_data = []
