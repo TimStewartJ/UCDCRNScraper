@@ -18,7 +18,7 @@ ap.add_argument('-t','--term',
 args = vars(ap.parse_args())
 term = args['term'] if args['term'] != None else input("Provide term to search classes for: ")
 
-driver = webdriver.Firefox()
+driver = webdriver.Chrome()
 url='https://registrar-apps.ucdavis.edu/courses/search/index.cfm'
 driver.get(url)
 
@@ -34,7 +34,7 @@ def read_data(x):
 
     try:
         #find the element with all of the data, get that data, then parse it
-        element = WebDriverWait(driver, delay).until(EC.presence_of_element_located((By.ID, 'mc_win')))
+        element = WebDriverWait(driver, delay).until(EC.presence_of_element_located((By.CSS_SELECTOR, '#mc_win, #courseResultsDiv h2 #home_tablez')))
         table_content = element.get_attribute('outerHTML')
         soup = BeautifulSoup(table_content, 'lxml')
 
@@ -89,11 +89,16 @@ def read_data(x):
                             t_row[day + "EndTime"] = ''
 
                 #if we're on column two, get the course code
-                if td_count == 2: t_row["Code"] = td.text.strip().split('\n')[0]
+                elif td_count == 2: t_row["Code"] = td.text.strip().split('\n')[0]
+                elif td_count == 5: t_row["Instructor"] = td.text.strip().split('\n')[0].strip()
 
             #add the row's data we just got to the list of row dictionaries
             table_data.append(t_row)
 
+        print("Data found for " + subject_area.first_selected_option.get_attribute("value"))
+
+    except AttributeError:
+        print("Couldn't find any data for " + subject_area.first_selected_option.get_attribute("value"))
     except selenium.common.exceptions.TimeoutException:
         print("Couldn't find any data for " + subject_area.first_selected_option.get_attribute("value"))
 
@@ -109,13 +114,16 @@ def write_data():
         writer.writeheader()
         writer.writerows(table_data)
 
-max_index = 262 #this is 1 more than how many unique subject areas there are at the time of writing
-delay = 7
-x = 1
+# max_index = len(subject_area.options) # gets length of the selector
+max_index = 3
+delay = 7 # maximum time to wait to find elements on search (shouldn't take that longg anyway)
+x = 1 # should start at 1 since 0 is the default selection and won't give any data
 table_data = []
 while x < max_index:
     term_selector.select_by_visible_text(term)
     read_data(x)
     x+=1
+
+driver.quit()
 
 write_data()
